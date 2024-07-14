@@ -31,8 +31,8 @@ class ObfuscateServiceProvider extends ServiceProvider
             ]);
 
             $this->publishes([
-                __DIR__.'/../../config/mObfs.php' => config_path('mObfs.php'),
-                __DIR__.'/../../config/yakpro-po.php.cnf' => config_path('mObfs.cnf'),
+                __DIR__.'/../config/mObfs.php' => config_path('mObfs.php'),
+                __DIR__.'/../config/yakpro-po.php.cnf' => config_path('mObfs.cnf'),
             ], 'config');
 
             $this->publishes([
