@@ -36,7 +36,7 @@ class ObfuscateServiceProvider extends ServiceProvider
             ], 'config');
 
             $this->publishes([
-                __DIR__.'/../../mObfuscate_backups/' => base_path('M_obfuscate_backups'),
+                __DIR__.'/../mObfuscate_backups/' => base_path('M_obfuscate_backups'),
             ], 'backups');
         }
     }

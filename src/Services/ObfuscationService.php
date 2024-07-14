@@ -68,6 +68,7 @@ class ObfuscationService
         $outputPath = $filePath; // Overwrite the original file
 
         $command = [
+            'php',
             $mObfsPath,
             '--config-file',
             $configPath,
