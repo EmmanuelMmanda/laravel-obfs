@@ -65,23 +65,48 @@ class ObfuscationService
     {
         $mObfsPath = config('mObfs.mObfs_path');
         $configPath = config('mObfs.config_file');
-        $outputPath = $filePath; // Overwrite the original file
+
+        // Generate temporary file path
+        $tempFilePath = $this->getTempFilePath($filePath);
+
+        // Copy the original file to temporary location
+        if (!copy($filePath, $tempFilePath)) {
+            throw new \RuntimeException('Failed to create temporary file for obfuscation: ' . $filePath);
+        }
+
+        // Delete the original file
+        if (!unlink($filePath)) {
+            throw new \RuntimeException('Failed to delete original file : ' . $filePath);
+        }
 
         $command = [
             'php',
             $mObfsPath,
             '--config-file',
             $configPath,
-            $filePath,
+            $tempFilePath,
             '-o',
-            $outputPath,
+            $filePath,
         ];
 
         $process = new Process($command);
         $process->run();
 
+        // Clean up the temporary file
+        unlink($tempFilePath);
+
         if (!$process->isSuccessful()) {
             throw new \RuntimeException('Error obfuscating file: ' . $filePath . ' - ' . $process->getErrorOutput());
         }
     }
+
+    private function getTempFilePath($filePath)
+    {
+        $basePath = dirname($filePath);
+        $fileName = basename($filePath);
+        $tempFileName = uniqid('temp_', true) . '_' . $fileName;
+        return $basePath . DIRECTORY_SEPARATOR . $tempFileName;
+    }
+
+
 }
