@@ -4,7 +4,7 @@
     "type": "library",
     "require": {
         "php": "^7.1|^8.0",
-        "pmdunggh/yakpro-po": "dev-master",
+        "pmdunggh/yakpro-po": "dev-master"
     },
     "license": "MIT",   
     "autoload": {
