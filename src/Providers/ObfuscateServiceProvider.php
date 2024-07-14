@@ -13,7 +13,7 @@ class ObfuscateServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__.'/../../config/mObfs.php', 'mObfs');
+        $this->mergeConfigFrom(__DIR__.'/../config/mObfs.php', 'mObfs');
 
         $this->app->singleton(ObfuscationService::class, function ($app) {
             return new ObfuscationService();
