@@ -74,7 +74,7 @@ If you get requirements compatabilities with your existing package just use .
    **PROJECTROOTDIR/config/mObfs.php and PROJECTROOTDIR/config/mObfs.cnf**
 
    ```bash
-       php artisan vendor:publish --provider="Mmanda\\LaravelObfs\\Providers\\ObfuscateServiceProvider"
+       php artisan vendor:publish --provider=Mmanda\LaravelObfs\Providers\ObfuscateServiceProvider
    ```
 
    **\*mObfs.cnf**
