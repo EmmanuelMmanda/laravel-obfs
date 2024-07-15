@@ -84,7 +84,7 @@ $conf->max_nested_directory             =   99;
 $conf->follow_symlinks                  = false;        // WARNING: setting it to true will copy the directory instead of replicating the link...
                                                         // WARNING: if there is a loop of links,  $conf->max_nested_directory can be created...
 
-$conf->user_comment                     = 'Flex CC Obfuscated File'; // user comment to insert inside each obfuscated file
+$conf->user_comment                     = 'Art of obfuscation'; // user comment to insert inside each obfuscated file
 
 $conf->extract_comment_from_line        = null;         // when both 2 are set, each obfuscated file will contain an extract of the corresponding source file,
 $conf->extract_comment_to_line          = null;         // starting from extract_comment_from_line number, and ending at extract_comment_to_line line number.
