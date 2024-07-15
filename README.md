@@ -37,7 +37,7 @@ Obfuscation configuratioin will be published at `PROJECTROOTDIR/config/mObfs.php
 php artisan vendor:publish --provider=Mmanda\LaravelObfs\Providers\ObfuscateServiceProvider
 ```
 
-`\*mObfs.cnf`
+`mObfs.cnf`
    Update the confguration as specified and your level of obfuscation desired.
 
 
