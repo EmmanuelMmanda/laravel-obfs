@@ -1,10 +1,12 @@
-# Laravel Obfuscation Package
+# Laravel Obfuscation Package 🔒
 
 A Simple wrapper for YakPro-po obfuscator for Laravel Framework.
+Due Accreditation : <a href="https://github.com/pk-fr/yakpro-po">YakPro-po</a> 🛩️
 
 ## Installation
 
 **Requirements**
+
 ```bash
 
 PHP version ^7.1|^8.0
@@ -26,40 +28,42 @@ nikic/php-parser ^4.0
        }
    ]
    ```
+
 2. **Minimum stability**: Add Minimum Stability Settings: Ensure your composer.json includes minimum-stability and prefer-stable:
-    
-    ```json
-        "minimum-stability": "dev",
-        "prefer-stable": true
-    ```
 
-3. ** install package**: 
+   ```json
+       "minimum-stability": "dev",
+       "prefer-stable": true
+   ```
 
-    ```bash
-        composer require mmanda/laravel-obfs
-    ```
+3. **install package**:
 
-    ***incase of php compatability issues**
-    Manually add the latest version on composer.json 'require' object:
+   ```bash
+       composer require mmanda/laravel-obfs
+   ```
 
-    ```json 
-        "require": {
-        "mmanda/laravel-obfs": "^<use latest version>"
-    },
+   **incase of php compatability issues**
+   Manually add the latest version on composer.json 'require' object:
 
-    ```
+   ```json
+       "require": {
+       "mmanda/laravel-obfs": "^<use latest version>"
+            }
+   ```
 
-    Then update dependancies with:
+   **Then update dependancies with**:
 
-    ```bash 
-        composer update --ignore-platform-reqs
-    ```
+   ```bash
+       composer update --ignore-platform-reqs
+   ```
 
-4 **IMPORTANT :: Publish configuration files**: if you skip this default obfuscation configuration will be used
+4. **IMPORTANT :: Publish configuration files**: if you skip this default obfuscation configuration will be used
+   Obfuscation configuratioin will be published at 
+     ***PROJECTROOTDIR/config/mObfs.php and PROJECTROOTDIR/config/mObfs.php**
 
-    ```bash
-        php artisan vendor:publish --provider="Mmanda\\LaravelObfs\\Providers\\ObfuscateServiceProvider"
-    ```
+   ```bash
+       php artisan vendor:publish --provider="Mmanda\\LaravelObfs\\Providers\\ObfuscateServiceProvider"
+   ```
 
 ### Usage
 
@@ -69,7 +73,7 @@ The package provides several Artisan commands to obfuscate PHP files within your
 **Obfuscate All PHP Files**
 To obfuscate all PHP files in your Laravel project:
 
-```bash 
+```bash
     php artisan mObfuscate:all
 
 ```
@@ -77,41 +81,44 @@ To obfuscate all PHP files in your Laravel project:
 **Obfuscate Specific Directory**
 To obfuscate PHP files in a specific directory:
 
-```bash 
+```bash
     php artisan mObfuscate:directory {directory}
 
 ```
 
 **Obfuscate Specific File**
 To obfuscate a specific PHP file:
-```bash 
+
+```bash
     php artisan mObfuscate:file {somefile or dir/file}
 ```
 
 **Backup and Restore**
- Backup
+Backup
 You can create backups of obfuscated files with the --backup option:
 
-```bash 
+```bash
 php artisan mObfuscate:all --backup
 
 ```
 
-
 Restore
 To restore a backed-up file or directory:
-```bash 
+
+```bash
     php artisan mObfuscate:restore {backup_file_name}
 ```
 
-
 ### Contributing
+
 Work in progress !! Contributions are welcome! Please read the contribution guidelines before submitting a pull request.
 
 ### License
+
 This package is licensed under the MIT License. See the LICENSE file for more information.
 
 ### Author
+
 ```bash
 
 Emmanuel Mmanda
