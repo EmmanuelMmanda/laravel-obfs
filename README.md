@@ -67,7 +67,7 @@ nikic/php-parser ^4.0
    ```
 
    ***mObfs.cnf**
-   Udate the confguration as specified and level of obfuscation desired.
+   Update the confguration as specified and your level of obfuscation desired.
 
 
 ### Usage
