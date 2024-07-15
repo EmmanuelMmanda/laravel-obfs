@@ -46,20 +46,21 @@ nikic/php-parser ^4.0
         "require": {
         "mmanda/laravel-obfs": "^<use latest version>"
     },
-    
+
     ```
 
-    Then update dependancies with ..
+    Then update dependancies with:
 
     ```bash 
         composer update --ignore-platform-reqs
     ```
 
-4 **IMPORTANT :: Publish configuration files**: if you skip this default obfuscation configuration will be used ..
+4 **IMPORTANT :: Publish configuration files**: if you skip this default obfuscation configuration will be used
+
     ```bash
         php artisan vendor:publish --provider="Mmanda\\LaravelObfs\\Providers\\ObfuscateServiceProvider"
-
     ```
+
 ### Usage
 
 Artisan Commands
@@ -70,13 +71,15 @@ To obfuscate all PHP files in your Laravel project:
 
 ```bash 
     php artisan mObfuscate:all
+
 ```
 
 **Obfuscate Specific Directory**
 To obfuscate PHP files in a specific directory:
 
 ```bash 
-    php artisan mObfuscate:all
+    php artisan mObfuscate:directory {directory}
+
 ```
 
 **Obfuscate Specific File**
@@ -86,12 +89,13 @@ To obfuscate a specific PHP file:
 ```
 
 **Backup and Restore**
-Backup
+ Backup
 You can create backups of obfuscated files with the --backup option:
 
 ```bash 
 php artisan mObfuscate:all --backup
-¬¬¬
+
+```
 
 
 Restore
@@ -101,13 +105,13 @@ To restore a backed-up file or directory:
 ```
 
 
-###Contributing
-Contributions are welcome! Please read the contribution guidelines before submitting a pull request.
+### Contributing
+Work in progress !! Contributions are welcome! Please read the contribution guidelines before submitting a pull request.
 
-###License
+### License
 This package is licensed under the MIT License. See the LICENSE file for more information.
 
-###Author
+### Author
 ```bash
 
 Emmanuel Mmanda
