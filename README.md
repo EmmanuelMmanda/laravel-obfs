@@ -60,11 +60,15 @@ nikic/php-parser ^4.0
 4. **IMPORTANT :: Publish configuration files**: if you skip this default obfuscation configuration will be used
    Obfuscation configuratioin will be published at 
    <br>
-     **PROJECTROOTDIR/config/mObfs.php and PROJECTROOTDIR/config/mObfs.php**
+     **PROJECTROOTDIR/config/mObfs.php and PROJECTROOTDIR/config/mObfs.cnf**
 
    ```bash
        php artisan vendor:publish --provider="Mmanda\\LaravelObfs\\Providers\\ObfuscateServiceProvider"
    ```
+
+   ***mObfs.cnf**
+   Udate the confguration as specified and level of obfuscation desired.
+
 
 ### Usage
 
