@@ -21,10 +21,10 @@ nikic/php-parser ^4.0
 ```bash
     composer require mmanda/laravel-obfs
 ```
-If your PHP cersion doesnot satify minimum requirements just use .
+If you get requirements compatabilities with your existing package just use .
 
 ```bash
-    composer require mmanda/laravel-obfs --ignore-platform-dependancies
+    composer require mmanda/laravel-obfs -W
 ```
 
 ### Manual Installation via Composer
@@ -65,7 +65,7 @@ If your PHP cersion doesnot satify minimum requirements just use .
    **Then update dependancies with**:
 
    ```bash
-       composer update --ignore-platform-reqs
+       composer update -W
    ```
 ### Publish Assets
    **IMPORTANT :: Publish configuration files**: if you skip this default obfuscation configuration will be used
