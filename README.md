@@ -88,7 +88,7 @@ Work in progress !! Contributions are welcome! Please read the contribution guid
 
 ### License
 
-This package is licensed under the MIT License. See the LICENSE file for more information.
+This package is licensed under the MIT License. See the ,<a href="https://github.com/EmmanuelMmanda/laravel-obfs/blob/master/LICENSE">LICENSE</a> file for more information.
 
 ### Author
 
