@@ -2,10 +2,10 @@
 
 namespace Mmanda\LaravelObfs\Console\Commands;
 
-use Illuminate\Console\Command;
+use Mmanda\LaravelObfs\Console\Commands\BaseObfuscateCommand;
 use Illuminate\Support\Facades\File;
 
-class RestoreCommand extends Command
+class RestoreCommand extends BaseObfuscateCommand
 {
     protected $signature = 'mObfuscate:restore {backup}';
     protected $description = 'Restore a backed-up file or directory';
@@ -20,9 +20,10 @@ class RestoreCommand extends Command
             return;
         }
 
-        // Extract original path from backup name
-        preg_match('/^M_(.*?)_/', $backupName, $matches);
-        $originalPath = str_replace('_', '/', $matches[1]);
+        // Extract original relative path from backup name (base64 between 'M_' and last '_')
+        $lastUnderscore = strrpos($backupName, '_');
+        $encoded = substr($backupName, 2, $lastUnderscore - 2);
+        $originalPath = base64_decode($encoded);
 
         $restorePath = base_path($originalPath);
 

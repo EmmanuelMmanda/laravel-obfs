@@ -11,7 +11,7 @@ PHP version ^7.1|^8.0
 
 Laravel Framework ^7.0|^8.0|^9.0|^10.0
 
-pmdunggh/yakpro-po dev-master
+pmdunggh/yakpro-po ^1.0.7
 
 nikic/php-parser ^4.0
 
@@ -22,7 +22,7 @@ nikic/php-parser ^4.0
 ```bash
 composer require mmanda/laravel-obfs
 ```
-If you get requirements compatabilities with your existing package just use .
+If you get dependency conflicts with your existing packages, use:
 
 ```bash
 composer require mmanda/laravel-obfs -W
@@ -30,11 +30,11 @@ composer require mmanda/laravel-obfs -W
 
 ## Publish Assets
 
-**NB** : Publish configuration files if you skip this default obfuscation configuration will be used
-Obfuscation configuratioin will be published at `PROJECTROOTDIR/config/mObfs.php` and `PROJECTROOTDIR/config/mObfs.cnf`
+**NB**: Publish configuration files; otherwise default obfuscation configuration is used.
+Configuration files are published to `PROJECTROOTDIR/config/mObfs.php` and `PROJECTROOTDIR/config/mObfs.cnf`
 
 ```bash
-php artisan vendor:publish --provider=Mmanda\LaravelObfs\Providers\ObfuscateServiceProvider
+php artisan vendor:publish --provider=Mmanda\LaravelObfs\Providers\ObfuscateServiceProvider --tag=mConfig
 ```
 
 `mObfs.cnf`
@@ -46,8 +46,8 @@ php artisan vendor:publish --provider=Mmanda\LaravelObfs\Providers\ObfuscateServ
 Artisan Commands
 The package provides several Artisan commands to obfuscate PHP files within your Laravel project.
 
-**Obfuscate All PHP Files**
-To obfuscate all PHP files in your Laravel project:
+**Obfuscate Core PHP Files**
+Obfuscates PHP files in `app` and `routes` (configurable via `config/mObfs.php`):
 
 ```bash
 php artisan mObfuscate:all
@@ -69,7 +69,7 @@ php artisan mObfuscate:file {somefile or dir/file}
 
 **Backup and Restore**
 Backup
-You can create backups of obfuscated files with the --backup option:
+Backups are stored in `PROJECTROOTDIR/M_obfuscate_backups`. You can create backups of obfuscated files with the --backup option:
 
 ```bash
 php artisan mObfuscate:all --backup

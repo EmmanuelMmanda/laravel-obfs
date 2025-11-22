@@ -33,14 +33,24 @@ class ObfuscationService
 
     public function obfuscateAll($backup = false)
     {
-        $this->obfuscateDirectory(base_path(), $backup);
+        $targets = config('mObfs.target_directories');
+        if (is_array($targets) && !empty($targets)) {
+            foreach ($targets as $dir) {
+                $path = base_path($dir);
+                if (File::isDirectory($path)) {
+                    $this->obfuscateDirectory($path, $backup);
+                }
+            }
+        } else {
+            $this->obfuscateDirectory(base_path('app'), $backup);
+            $this->obfuscateDirectory(base_path('routes'), $backup);
+        }
     }
 
     public function restoreBackup($backupPath, $restorePath)
     {
         if (File::exists($backupPath)) {
             File::copy($backupPath, $restorePath);
-            $this->info("Restored backup to '$restorePath'.");
         } else {
             throw new \RuntimeException("Backup file '$backupPath' does not exist.");
         }
@@ -50,15 +60,17 @@ class ObfuscationService
     {
         $backupDir = base_path('M_obfuscate_backups');
         if (!File::exists($backupDir)) {
-            File::makeDirectory($backupDir, 0755, true); // Create backup directory if not exists
+            File::makeDirectory($backupDir, 0755, true);
         }
 
-        $backupFileName = 'M_' . str_replace('/', '_', $filePath) . '_' . time();
+        $root = str_replace('\\','/', base_path());
+        $file = str_replace('\\','/', $filePath);
+        $relative = ltrim(str_replace($root.'/', '', $file), '/');
+        $encoded = base64_encode($relative);
+        $backupFileName = 'M_' . $encoded . '_' . time();
         $backupPath = $backupDir . DIRECTORY_SEPARATOR . $backupFileName;
 
         File::copy($filePath, $backupPath);
-
-        $this->info("Created backup '$backupPath'.");
     }
 
     private function obfuscate($filePath)
@@ -74,10 +86,7 @@ class ObfuscationService
             throw new \RuntimeException('Failed to create temporary file for obfuscation: ' . $filePath);
         }
 
-        // Delete the original file
-        if (!unlink($filePath)) {
-            throw new \RuntimeException('Failed to delete original file : ' . $filePath);
-        }
+        // Keep the original file until obfuscation completes successfully
 
         $command = [
             'php',
