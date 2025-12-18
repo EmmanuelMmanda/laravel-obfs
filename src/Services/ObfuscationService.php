@@ -125,5 +125,51 @@ class ObfuscationService
         return $basePath . DIRECTORY_SEPARATOR . $tempFileName;
     }
 
+    private function ensureCompatiblePhpParser()
+    {
+        if (self::$dependenciesChecked) {
+            return;
+        }
 
+        $vendorDir = base_path('vendor');
+        $yakproDir = $vendorDir . '/pmdunggh/yakpro-po';
+        $targetDir = $yakproDir . '/PHP-Parser';
+        
+        // If local copy exists and seems valid, use it
+        if (File::isDirectory($targetDir) && File::exists($targetDir . '/lib/PhpParser/Builder.php')) {
+             self::$dependenciesChecked = true;
+             return;
+        }
+
+        // Check system version
+        $systemParserJson = $vendorDir . '/nikic/php-parser/composer.json';
+        if (File::exists($systemParserJson)) {
+            $content = json_decode(file_get_contents($systemParserJson));
+            // Check for v4 compatible signature
+            // yakpro-po checks: extra -> branch-alias -> dev-master starts with 4.
+            $branch = $content->extra->{'branch-alias'}->{'dev-master'} ?? '';
+            if (strpos($branch, '4.') === 0) {
+                 self::$dependenciesChecked = true;
+                 return;
+            }
+        }
+        
+        // If we are here, we need to install v4
+        // Ensure yakpro dir exists
+        if (!File::isDirectory($yakproDir)) {
+             // If yakpro is not installed, we can't run anyway.
+             return; 
+        }
+
+        // Try to clone
+        $command = ['git', 'clone', 'https://github.com/nikic/PHP-Parser.git', $targetDir, '--branch', '4.x', '--depth', '1'];
+        $process = new Process($command);
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+             throw new \RuntimeException("Incompatible PHP-Parser version detected. Tried to install PHP-Parser 4.x for yakpro-po but failed: " . $process->getErrorOutput() . "\nPlease run manually: git clone https://github.com/nikic/PHP-Parser.git " . $targetDir . " --branch 4.x");
+        }
+        
+        self::$dependenciesChecked = true;
+    }
 }

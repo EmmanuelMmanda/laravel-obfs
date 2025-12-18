@@ -35,6 +35,11 @@ class ObfuscateServiceProvider extends ServiceProvider
                 __DIR__.'/../config/mObfs.cnf' => config_path('mObfs.cnf'),
             ], 'mConfig');
 
+            $this->publishes([
+                __DIR__.'/../config/mObfs.php' => config_path('mObfs.php'),
+                __DIR__.'/../config/mObfs.cnf' => config_path('mObfs.cnf'),
+            ], 'config');
+
         }
     }
 }
