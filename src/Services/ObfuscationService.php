@@ -139,10 +139,18 @@ class ObfuscationService
         $yakproDir = $vendorDir . '/pmdunggh/yakpro-po';
         $targetDir = $yakproDir . '/PHP-Parser';
         
-        // If local copy exists and seems valid, use it
+        // Check local copy first
         if (File::isDirectory($targetDir) && File::exists($targetDir . '/lib/PhpParser/Builder.php')) {
-             self::$dependenciesChecked = true;
-             return;
+             // Validate composer.json has branch-alias (required by yakpro-po)
+             if ($this->validateAndFixComposerJson($targetDir)) {
+                 self::$dependenciesChecked = true;
+                 return;
+             }
+             // If validation failed (and couldn't be fixed), we might need to re-install.
+             // For now, assume validateAndFixComposerJson tries its best.
+             // If it returned false, it means file is missing or unreadable.
+             // We proceed to re-install.
+             File::deleteDirectory($targetDir);
         }
 
         // Check system version
@@ -165,15 +173,48 @@ class ObfuscationService
              return; 
         }
 
-        // Try to clone
-        $command = ['git', 'clone', 'https://github.com/nikic/PHP-Parser.git', $targetDir, '--branch', '4.x', '--depth', '1'];
+        // Try to clone v4.15.0 (known to work, or we fix it)
+        $command = ['git', 'clone', 'https://github.com/nikic/PHP-Parser.git', $targetDir, '--branch', 'v4.15.0', '--depth', '1'];
         $process = new Process($command);
         $process->run();
 
         if (!$process->isSuccessful()) {
-             throw new \RuntimeException("Incompatible PHP-Parser version detected. Tried to install PHP-Parser 4.x for yakpro-po but failed: " . $process->getErrorOutput() . "\nPlease run manually: git clone https://github.com/nikic/PHP-Parser.git " . $targetDir . " --branch 4.x");
+             throw new \RuntimeException("Incompatible PHP-Parser version detected. Tried to install PHP-Parser v4.15.0 for yakpro-po but failed: " . $process->getErrorOutput() . "\nPlease run manually: git clone https://github.com/nikic/PHP-Parser.git " . $targetDir . " --branch v4.15.0");
         }
         
+        // Post-install fix
+        $this->validateAndFixComposerJson($targetDir);
+        
         self::$dependenciesChecked = true;
+    }
+
+    private function validateAndFixComposerJson($targetDir)
+    {
+        $jsonPath = $targetDir . '/composer.json';
+        if (!File::exists($jsonPath)) {
+            return false;
+        }
+
+        $content = json_decode(file_get_contents($jsonPath), true);
+        if (!is_array($content)) {
+            return false;
+        }
+
+        $branch = $content['extra']['branch-alias']['dev-master'] ?? '';
+        if (strpos($branch, '4.') === 0) {
+            return true;
+        }
+
+        // Fix it: Inject branch-alias
+        if (!isset($content['extra'])) {
+            $content['extra'] = [];
+        }
+        if (!isset($content['extra']['branch-alias'])) {
+            $content['extra']['branch-alias'] = [];
+        }
+        $content['extra']['branch-alias']['dev-master'] = '4.9-dev'; // Mimic 4.x
+
+        File::put($jsonPath, json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        return true;
     }
 }
