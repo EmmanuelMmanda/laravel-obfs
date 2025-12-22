@@ -7,6 +7,8 @@ use Symfony\Component\Process\Process;
 
 class ObfuscationService
 {
+    private static $dependenciesChecked = false;
+
     public function obfuscateFile($filePath, $backup = false)
     {
         if ($backup) {
