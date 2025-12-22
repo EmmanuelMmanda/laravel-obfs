@@ -77,6 +77,8 @@ class ObfuscationService
 
     private function obfuscate($filePath)
     {
+        $this->ensureCompatiblePhpParser();
+
         $mObfsPath = config('mObfs.mObfs_path');
         $configPath = config('mObfs.config_file');
 
