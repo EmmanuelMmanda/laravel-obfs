@@ -2,6 +2,7 @@
 
 namespace Mmanda\LaravelObfs\Services;
 
+use Composer\InstalledVersions;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Process\Process;
 
@@ -156,13 +157,11 @@ class ObfuscationService
         // Check system version
         $systemParserJson = $vendorDir . '/nikic/php-parser/composer.json';
         if (File::exists($systemParserJson)) {
-            $content = json_decode(file_get_contents($systemParserJson));
-            // Check for v4 compatible signature
-            // yakpro-po checks: extra -> branch-alias -> dev-master starts with 4.
-            $branch = $content->extra->{'branch-alias'}->{'dev-master'} ?? '';
-            if (strpos($branch, '4.') === 0) {
-                 self::$dependenciesChecked = true;
-                 return;
+            $installedVersion = InstalledVersions::getPrettyVersion('nikic/php-parser') ?: '';
+            if (preg_match('/^v?4\./', $installedVersion) === 1
+                && $this->validateAndFixComposerJson(dirname($systemParserJson))) {
+                self::$dependenciesChecked = true;
+                return;
             }
         }
         
