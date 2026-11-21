@@ -1,0 +1,67 @@
+name: Laravel compatibility
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  package-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+      - run: composer validate --strict
+      - run: composer audit --locked --no-interaction
+
+  install-and-run:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { laravel: '10', php: '8.1' }
+          - { laravel: '10', php: '8.2' }
+          - { laravel: '10', php: '8.3' }
+          - { laravel: '10', php: '8.4' }
+          - { laravel: '10', php: '8.5' }
+          - { laravel: '11', php: '8.2' }
+          - { laravel: '11', php: '8.3' }
+          - { laravel: '11', php: '8.4' }
+          - { laravel: '11', php: '8.5' }
+          - { laravel: '12', php: '8.2' }
+          - { laravel: '12', php: '8.3' }
+          - { laravel: '12', php: '8.4' }
+          - { laravel: '12', php: '8.5' }
+          - { laravel: '13', php: '8.3' }
+          - { laravel: '13', php: '8.4' }
+          - { laravel: '13', php: '8.5' }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+      - name: Create Laravel application
+        run: composer create-project "laravel/laravel:^${{ matrix.laravel }}.0" /tmp/obfs-app --no-install --no-scripts --no-interaction --no-progress
+      - name: Permit archived framework advisories in older disposable fixtures
+        if: matrix.laravel == '10' || matrix.laravel == '11'
+        working-directory: /tmp/obfs-app
+        run: composer config policy.advisories.block false
+      - name: Install Laravel application
+        working-directory: /tmp/obfs-app
+        run: composer install --no-interaction --no-progress
+      - name: Install package from checkout
+        working-directory: /tmp/obfs-app
+        run: |
+          composer config repositories.local path "$GITHUB_WORKSPACE"
+          composer require 'mmanda/laravel-obfs:@dev' -W --no-interaction --no-progress
+      - name: Exercise commands and security checks
+        run: php "$GITHUB_WORKSPACE/tests/integration.php" /tmp/obfs-app
+      - name: Report fixture advisories
+        working-directory: /tmp/obfs-app
+        if: always()
+        continue-on-error: true
+        run: composer audit --locked --no-interaction

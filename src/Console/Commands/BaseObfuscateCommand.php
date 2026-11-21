@@ -15,13 +15,15 @@ abstract class BaseObfuscateCommand extends Command
         $this->obfuscationService = $obfuscationService;
     }
 
-    protected function obfuscateDirectory($directoryPath, $backup = false)
+    protected function obfuscateDirectory($directoryPath, $backup = false, $jobs = 4)
     {
         try {
-            $this->obfuscationService->obfuscateDirectory($directoryPath, $backup);
-            $this->info("Directory '$directoryPath' obfuscated successfully.");
-        } catch (\Exception $e) {
+            $skipped = $this->obfuscationService->obfuscateDirectory($directoryPath, $backup, $jobs);
+            $this->info("Directory '$directoryPath' obfuscated successfully. Skipped {$skipped} symlinks.");
+            return 0;
+        } catch (\Throwable $e) {
             $this->error($e->getMessage());
+            return 1;
         }
     }
 
@@ -30,8 +32,10 @@ abstract class BaseObfuscateCommand extends Command
         try {
             $this->obfuscationService->obfuscateFile($filePath, $backup);
             $this->info("File '$filePath' obfuscated successfully.");
-        } catch (\Exception $e) {
+            return 0;
+        } catch (\Throwable $e) {
             $this->error($e->getMessage());
+            return 1;
         }
     }
 }

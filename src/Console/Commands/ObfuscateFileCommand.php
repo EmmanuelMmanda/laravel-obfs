@@ -17,9 +17,9 @@ class ObfuscateFileCommand extends BaseObfuscateCommand
 
         if (!File::exists($filePath)) {
             $this->error("Source file '$filePath' does not exist.");
-            return;
+            return 1;
         }
 
-        $this->obfuscateFile($filePath, $backup);
+        return $this->obfuscateFile($filePath, $backup);
     }
 }
