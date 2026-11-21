@@ -4,9 +4,18 @@ A wrapper for [YAK Pro PHP Obfuscator](https://github.com/pk-fr/yakpro-po) for L
 
 ## Requirements
 
-- PHP 7.4 or newer. Laravel 12 requires PHP 8.2 or newer.
-- Laravel 7 through 12.
-- `douglas-fortunatus/yakpro-po` 3.x and `nikic/php-parser` 5.9 or newer, installed by Composer.
+Laravel 10–13, on these PHP versions:
+
+| Laravel | PHP |
+| --- | --- |
+| 10 | 8.1–8.5 |
+| 11 | 8.2–8.5 |
+| 12 | 8.2–8.5 |
+| 13 | 8.3–8.5 |
+
+PHP 8.0 is unsupported because Laravel 10 requires PHP 8.1. The CI matrix runs
+every pair above. Composer installs `douglas-fortunatus/yakpro-po` 3.x and
+`nikic/php-parser` 5.9 or newer.
 
 ## Installation
 
@@ -38,6 +47,9 @@ Obfuscates PHP files in `app` and `routes` (configurable via `config/mObfs.php`)
 
 ```bash
 php artisan mObfuscate:all
+
+# Up to 4 file processes by default; choose 1–32 workers
+php artisan mObfuscate:all --jobs=4
 ```
 
 **Obfuscate Specific Directory**
@@ -45,6 +57,8 @@ To obfuscate PHP files in a specific directory:
 
 ```bash
 php artisan mObfuscate:directory {directory}
+
+php artisan mObfuscate:directory app --jobs=4
 ```
 
 **Obfuscate Specific File**
@@ -56,18 +70,26 @@ php artisan mObfuscate:file {somefile or dir/file}
 
 **Backup and Restore**
 Backup
-Backups are stored in `PROJECTROOTDIR/M_obfuscate_backups`. You can create backups of obfuscated files with the --backup option:
+Backups are stored in `PROJECTROOTDIR/M_obfuscate_backups`. You can create
+backups of obfuscated files with the `--backup` option:
 
 ```bash
 php artisan mObfuscate:all --backup
 ```
 
 Restore
-To restore a backed-up file or directory:
+Restore a backed-up PHP file by its backup file name:
 
 ```bash
 php artisan mObfuscate:restore {backup_file_name}
 ```
+
+Only regular PHP files within the project are accepted. Commands reject explicit
+symlink paths and exclude `vendor` and `M_obfuscate_backups`. Directory scans
+skip symlinks and report the count. Files are replaced only after successful
+obfuscation. Batch failures stop scheduling new files, wait for running files,
+keep completed files, and return a nonzero exit code. New backups use collision
+resistant `M2_` names; restore also accepts valid legacy `M_` backups.
 
 ## Contributing
 
@@ -75,7 +97,7 @@ Work in progress !! Contributions are welcome! Please read the contribution guid
 
 ## Upgrade from 1.x
 
-Version 2 requires PHP 7.4+ and uses YAK Pro 3 with PHP-Parser 5. Existing
+Version 2 supports the Laravel and PHP pairs above and uses YAK Pro 3 with PHP-Parser 5. Existing
 published `config/mObfs.php` files containing the old default
 `vendor/pmdunggh/yakpro-po/yakpro-po.php` path resolve to the new engine
 automatically. Custom executable paths stay unchanged.

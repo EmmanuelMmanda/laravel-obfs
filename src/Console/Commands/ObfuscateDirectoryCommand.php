@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\File;
 
 class ObfuscateDirectoryCommand extends BaseObfuscateCommand
 {
-    protected $signature = 'mObfuscate:directory {directory} {--backup : Create a backup of each file}';
+    protected $signature = 'mObfuscate:directory {directory} {--backup : Create a backup of each file} {--jobs=4 : Parallel file processes (1-32)}';
     protected $description = 'Obfuscate all PHP files in the specified directory';
 
     public function handle()
@@ -20,6 +20,6 @@ class ObfuscateDirectoryCommand extends BaseObfuscateCommand
             return 1;
         }
 
-        return $this->obfuscateDirectory($directoryPath, $backup);
+        return $this->obfuscateDirectory($directoryPath, $backup, $this->option('jobs'));
     }
 }

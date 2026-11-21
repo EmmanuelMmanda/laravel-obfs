@@ -2,9 +2,6 @@
 
 namespace Mmanda\LaravelObfs\Console\Commands;
 
-use Mmanda\LaravelObfs\Console\Commands\BaseObfuscateCommand;
-use Illuminate\Support\Facades\File;
-
 class RestoreCommand extends BaseObfuscateCommand
 {
     protected $signature = 'mObfuscate:restore {backup}';
@@ -12,22 +9,13 @@ class RestoreCommand extends BaseObfuscateCommand
 
     public function handle()
     {
-        $backupName = $this->argument('backup');
-        $backupPath = base_path('M_obfuscate_backups') . DIRECTORY_SEPARATOR . $backupName;
-
-        if (!File::exists($backupPath)) {
-            $this->error("Backup '$backupName' not found.");
+        try {
+            $this->obfuscationService->restoreBackupByName($this->argument('backup'));
+            $this->info('Backup restored successfully.');
+            return 0;
+        } catch (\Throwable $e) {
+            $this->error($e->getMessage());
             return 1;
         }
-
-        // Extract original relative path from backup name (base64 between 'M_' and last '_')
-        $lastUnderscore = strrpos($backupName, '_');
-        $encoded = substr($backupName, 2, $lastUnderscore - 2);
-        $originalPath = base64_decode($encoded);
-
-        $restorePath = base_path($originalPath);
-
-        $this->obfuscationService->restoreBackup($backupPath, $restorePath);
-        return 0;
     }
 }
