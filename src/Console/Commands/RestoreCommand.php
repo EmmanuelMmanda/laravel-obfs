@@ -17,7 +17,7 @@ class RestoreCommand extends BaseObfuscateCommand
 
         if (!File::exists($backupPath)) {
             $this->error("Backup '$backupName' not found.");
-            return;
+            return 1;
         }
 
         // Extract original relative path from backup name (base64 between 'M_' and last '_')
@@ -28,5 +28,6 @@ class RestoreCommand extends BaseObfuscateCommand
         $restorePath = base_path($originalPath);
 
         $this->obfuscationService->restoreBackup($backupPath, $restorePath);
+        return 0;
     }
 }

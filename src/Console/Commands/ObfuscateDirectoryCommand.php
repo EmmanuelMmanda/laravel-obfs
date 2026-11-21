@@ -17,9 +17,9 @@ class ObfuscateDirectoryCommand extends BaseObfuscateCommand
 
         if (!File::isDirectory($directoryPath)) {
             $this->error("Directory '$directoryPath' does not exist.");
-            return;
+            return 1;
         }
 
-        $this->obfuscateDirectory($directoryPath, $backup);
+        return $this->obfuscateDirectory($directoryPath, $backup);
     }
 }

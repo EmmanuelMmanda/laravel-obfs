@@ -20,8 +20,10 @@ abstract class BaseObfuscateCommand extends Command
         try {
             $this->obfuscationService->obfuscateDirectory($directoryPath, $backup);
             $this->info("Directory '$directoryPath' obfuscated successfully.");
+            return 0;
         } catch (\Exception $e) {
             $this->error($e->getMessage());
+            return 1;
         }
     }
 
@@ -30,8 +32,10 @@ abstract class BaseObfuscateCommand extends Command
         try {
             $this->obfuscationService->obfuscateFile($filePath, $backup);
             $this->info("File '$filePath' obfuscated successfully.");
+            return 0;
         } catch (\Exception $e) {
             $this->error($e->getMessage());
+            return 1;
         }
     }
 }

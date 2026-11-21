@@ -1,44 +1,31 @@
 # Laravel Obfuscation Package 🔒
 
-A Simple wrapper for YakPro-po obfuscator for Laravel Framework.
-Due Accreditation : <a href="https://github.com/pk-fr/yakpro-po">YakPro-po</a> 🛩️
+A wrapper for [YAK Pro PHP Obfuscator](https://github.com/pk-fr/yakpro-po) for Laravel.
 
 ## Requirements
 
-```bash
-
-PHP version ^7.1|^8.0
-
-Laravel Framework ^7.0|^8.0|^9.0|^10.0
-
-pmdunggh/yakpro-po ^1.0.7
-
-nikic/php-parser ^4.0
-
-```
+- PHP 7.4 or newer. Laravel 12 requires PHP 8.2 or newer.
+- Laravel 7 through 12.
+- `douglas-fortunatus/yakpro-po` 3.x and `nikic/php-parser` 5.9 or newer, installed by Composer.
 
 ## Installation
 
 ```bash
-composer require mmanda/laravel-obfs
+composer require mmanda/laravel-obfs:^2.0 -W
 ```
-If you get dependency conflicts with your existing packages, use:
-
-```bash
-composer require mmanda/laravel-obfs -W
-```
+The package does not download dependencies while an Artisan command runs.
 
 ## Publish Assets
 
-**NB**: Publish configuration files; otherwise default obfuscation configuration is used.
+Publish configuration files to customize obfuscation. Without published files, package defaults apply.
 Configuration files are published to `PROJECTROOTDIR/config/mObfs.php` and `PROJECTROOTDIR/config/mObfs.cnf`
 
 ```bash
 php artisan vendor:publish --provider=Mmanda\LaravelObfs\Providers\ObfuscateServiceProvider --tag=mConfig
 ```
 
-`mObfs.cnf`
-   Update the confguration as specified and your level of obfuscation desired.
+Edit `config/mObfs.cnf` to choose obfuscation options. Its `parser_mode` may be
+`HOST_VERSION`, `NEWEST_VERSION`, or a PHP version such as `8.2`.
 
 
 ## Usage
@@ -85,6 +72,18 @@ php artisan mObfuscate:restore {backup_file_name}
 ## Contributing
 
 Work in progress !! Contributions are welcome! Please read the contribution guidelines before submitting a pull request.
+
+## Upgrade from 1.x
+
+Version 2 requires PHP 7.4+ and uses YAK Pro 3 with PHP-Parser 5. Existing
+published `config/mObfs.php` files containing the old default
+`vendor/pmdunggh/yakpro-po/yakpro-po.php` path resolve to the new engine
+automatically. Custom executable paths stay unchanged.
+
+An existing default `PREFER_PHP7` parser mode maps to `HOST_VERSION`. Replace
+other legacy parser modes in `config/mObfs.cnf` with a supported mode before
+running obfuscation. Back up application files before upgrading: output may
+change between YAK Pro versions.
 
 ### License
 

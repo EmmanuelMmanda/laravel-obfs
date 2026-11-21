@@ -2,14 +2,11 @@
 
 namespace Mmanda\LaravelObfs\Services;
 
-use Composer\InstalledVersions;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Process\Process;
 
 class ObfuscationService
 {
-    private static $dependenciesChecked = false;
-
     public function obfuscateFile($filePath, $backup = false)
     {
         if ($backup) {
@@ -78,48 +75,48 @@ class ObfuscationService
 
     private function obfuscate($filePath)
     {
-        $this->ensureCompatiblePhpParser();
-
-        $mObfsPath = config('mObfs.mObfs_path');
+        $mObfsPath = $this->enginePath();
         $configPath = config('mObfs.config_file');
+        if (!File::isFile($mObfsPath)) {
+            throw new \RuntimeException('Yakpro executable not found: ' . $mObfsPath);
+        }
+        if (!File::isFile($configPath)) {
+            if ($configPath === base_path('config/mObfs.cnf')) {
+                $configPath = __DIR__ . '/../config/mObfs.cnf';
+            } else {
+                throw new \RuntimeException('Yakpro config not found: ' . $configPath);
+            }
+        }
 
         $tempFilePath = $this->getTempFilePath($filePath);
         $tempOutPath = $this->getTempFilePath($filePath);
 
-        if (!copy($filePath, $tempFilePath)) {
-            throw new \RuntimeException('Failed to create temporary file for obfuscation: ' . $filePath);
-        }
-
-        $command = [
-            'php',
-            $mObfsPath,
-            '--config-file',
-            $configPath,
-            $tempFilePath,
-            '-o',
-            $tempOutPath,
-        ];
-
-        $process = new Process($command);
-        $process->run();
-
-        if (File::exists($tempFilePath)) {
-            @unlink($tempFilePath);
-        }
-
-        if (!$process->isSuccessful()) {
-            if (File::exists($tempOutPath)) {
-                @unlink($tempOutPath);
+        try {
+            if (!copy($filePath, $tempFilePath)) {
+                throw new \RuntimeException('Failed to create temporary file for obfuscation: ' . $filePath);
             }
-            throw new \RuntimeException('Error obfuscating file: ' . $filePath . ' - ' . $process->getErrorOutput());
-        }
 
-        if (!copy($tempOutPath, $filePath)) {
+            $process = new Process([
+                PHP_BINARY,
+                $mObfsPath,
+                '--config-file',
+                $configPath,
+                $tempFilePath,
+                '-o',
+                $tempOutPath,
+            ]);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                throw new \RuntimeException('Error obfuscating file: ' . $filePath . ' - ' . trim($process->getErrorOutput()));
+            }
+            if (!File::isFile($tempOutPath) || !copy($tempOutPath, $filePath)) {
+                throw new \RuntimeException('Failed to write obfuscated output to original file: ' . $filePath);
+            }
+        } finally {
+            @unlink($tempFilePath);
             @unlink($tempOutPath);
-            throw new \RuntimeException('Failed to write obfuscated output to original file: ' . $filePath);
         }
-
-        @unlink($tempOutPath);
     }
 
     private function getTempFilePath($filePath)
@@ -130,90 +127,13 @@ class ObfuscationService
         return $basePath . DIRECTORY_SEPARATOR . $tempFileName;
     }
 
-    private function ensureCompatiblePhpParser()
+    private function enginePath()
     {
-        if (self::$dependenciesChecked) {
-            return;
+        $path = config('mObfs.mObfs_path');
+        $oldDefault = base_path('vendor/pmdunggh/yakpro-po/yakpro-po.php');
+        if ($path === $oldDefault) {
+            return base_path('vendor/douglas-fortunatus/yakpro-po/yakpro-po.php');
         }
-
-        $vendorDir = base_path('vendor');
-        $yakproDir = $vendorDir . '/pmdunggh/yakpro-po';
-        $targetDir = $yakproDir . '/PHP-Parser';
-        
-        // Check local copy first
-        if (File::isDirectory($targetDir) && File::exists($targetDir . '/lib/PhpParser/Builder.php')) {
-             // Validate composer.json has branch-alias (required by yakpro-po)
-             if ($this->validateAndFixComposerJson($targetDir)) {
-                 self::$dependenciesChecked = true;
-                 return;
-             }
-             // If validation failed (and couldn't be fixed), we might need to re-install.
-             // For now, assume validateAndFixComposerJson tries its best.
-             // If it returned false, it means file is missing or unreadable.
-             // We proceed to re-install.
-             File::deleteDirectory($targetDir);
-        }
-
-        // Check system version
-        $systemParserJson = $vendorDir . '/nikic/php-parser/composer.json';
-        if (File::exists($systemParserJson)) {
-            $installedVersion = InstalledVersions::getPrettyVersion('nikic/php-parser') ?: '';
-            if (preg_match('/^v?4\./', $installedVersion) === 1
-                && $this->validateAndFixComposerJson(dirname($systemParserJson))) {
-                self::$dependenciesChecked = true;
-                return;
-            }
-        }
-        
-        // If we are here, we need to install v4
-        // Ensure yakpro dir exists
-        if (!File::isDirectory($yakproDir)) {
-             // If yakpro is not installed, we can't run anyway.
-             return; 
-        }
-
-        // Try to clone v4.15.0 (known to work, or we fix it)
-        $command = ['git', 'clone', 'https://github.com/nikic/PHP-Parser.git', $targetDir, '--branch', 'v4.15.0', '--depth', '1'];
-        $process = new Process($command);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-             throw new \RuntimeException("Incompatible PHP-Parser version detected. Tried to install PHP-Parser v4.15.0 for yakpro-po but failed: " . $process->getErrorOutput() . "\nPlease run manually: git clone https://github.com/nikic/PHP-Parser.git " . $targetDir . " --branch v4.15.0");
-        }
-        
-        // Post-install fix
-        $this->validateAndFixComposerJson($targetDir);
-        
-        self::$dependenciesChecked = true;
-    }
-
-    private function validateAndFixComposerJson($targetDir)
-    {
-        $jsonPath = $targetDir . '/composer.json';
-        if (!File::exists($jsonPath)) {
-            return false;
-        }
-
-        $content = json_decode(file_get_contents($jsonPath), true);
-        if (!is_array($content)) {
-            return false;
-        }
-
-        $branch = $content['extra']['branch-alias']['dev-master'] ?? '';
-        if (strpos($branch, '4.') === 0) {
-            return true;
-        }
-
-        // Fix it: Inject branch-alias
-        if (!isset($content['extra'])) {
-            $content['extra'] = [];
-        }
-        if (!isset($content['extra']['branch-alias'])) {
-            $content['extra']['branch-alias'] = [];
-        }
-        $content['extra']['branch-alias']['dev-master'] = '4.9-dev'; // Mimic 4.x
-
-        File::put($jsonPath, json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-        return true;
+        return $path;
     }
 }

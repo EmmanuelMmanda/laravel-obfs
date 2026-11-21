@@ -15,5 +15,6 @@ class ObfuscateAllCommand extends BaseObfuscateCommand
         $backup = $this->option('backup');
         $this->obfuscationService->obfuscateAll($backup);
         $this->info('All PHP files obfuscated successfully.');
+        return 0;
     }
 }
